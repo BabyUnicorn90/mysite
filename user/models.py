@@ -9,7 +9,7 @@ def insert(name, email, password, gender):
     sql = '''
             insert
                 into user
-                values (null, %s, %s,  password(%s), %s, now())    
+                values (null, %s, %s,  password(%s), %s, now())
     '''
 
     cursor.execute(sql, (name, email, password, gender))
@@ -26,7 +26,7 @@ def get_one_user(email, password):
     sql = '''
         select no, name
             from user
-        where email=%s 
+        where email=%s
             and password=password(%s)
     '''
     cursor.execute(sql, (email, password))
@@ -75,7 +75,7 @@ def update(no, name, password, gender):
 
     if password is None:
         sql = '''
-            update user 
+            update user
                 set name=%s, gender = %s
             where no=%s
         '''
@@ -83,7 +83,7 @@ def update(no, name, password, gender):
         conn.commit()
     else:
         sql = '''
-            update user 
+            update user
                 set name=%s, password=password(%s), gender = %s
             where no=%s
         '''
@@ -95,4 +95,4 @@ def update(no, name, password, gender):
 
 
 def getconnection():
-    return connect(user='mysite', password='mysite', host='192.168.1.107', port=3306, db='mysite', charset='utf8')
+    return connect(user='mysite', password='mysite', host='localhost', port=3306, db='mysite', charset='utf8')

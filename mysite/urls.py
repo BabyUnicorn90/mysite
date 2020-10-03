@@ -42,12 +42,12 @@ urlpatterns = [
     path('user/logout', userviews.logout),
 
     path('board/', boardviews.index),
-    path('board/indextest2', boardviews.index),
-    #path('board/loginrequest/', boardviews.loginrequest),
     path('board/write', boardviews.write),
     path('board/add', boardviews.add),
     path('board/deleteform', boardviews.deleteform),
     path('board/delete', boardviews.delete),
+    path('board/modifyform', boardviews.modifyform),
+    path('board/modify', boardviews.modify),
 
 
     path('admin/', admin.site.urls),

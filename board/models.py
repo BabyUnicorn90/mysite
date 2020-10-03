@@ -49,7 +49,7 @@ def fetchlist():
                  b.user_no,
                  u.name as user_name
             from board b
-            inner join user u on u.no = b.user_no 
+            inner join user u on u.no = b.user_no
             order by no desc
     '''
     cursor.execute(sql)
@@ -64,7 +64,7 @@ def fetchonebyno(no):
     conn = getconnection()
     cursor = conn.cursor(DictCursor)
 
-    cursor.execute('select * from board where no=%s', str(no))
+    cursor.execute('select * from board where no = %s', [no])
     result = cursor.fetchone()
 
     cursor.close()
@@ -81,7 +81,7 @@ def delete(no):
           from board
          where no=%s
     '''
-    result = cursor.execute(sql, (no))
+    result = cursor.execute(sql, [no])
     conn.commit()
 
     # 자원 정리
@@ -90,5 +90,36 @@ def delete(no):
 
     return result
 
+def hit(no):
+    conn = getconnection()
+    cursor = conn.cursor()
+
+    sql = '''
+        update board
+            set hit = hit + 1
+        where no = %s
+    '''
+    cursor.execute(sql, [str(no)])
+    conn.commit()
+
+    cursor.close()
+    conn.close()
+
+
+def update(board_no, title, content):
+    conn = getconnection()
+    cursor = conn.cursor()
+
+    sql = '''
+        update board
+            set title=%s, content=%s
+        where no=%s
+    '''
+    cursor.execute(sql, (title, content, str(board_no)))
+    conn.commit()
+
+    cursor.close()
+    conn.close()
+
 def getconnection():
-    return connect(user="mysite", password="mysite", host="192.168.1.107", db="mysite", charset="utf8")
+    return connect(user="mysite", password="mysite", host="localhost", db="mysite", charset="utf8")

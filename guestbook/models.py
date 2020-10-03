@@ -60,4 +60,4 @@ def delete(no, password):
     return result
 
 def getconnection():
-    return connect(user="mysite", password="mysite", host="192.168.1.107", db="mysite", charset="utf8")
+    return connect(user="mysite", password="mysite", host="localhost", db="mysite", charset="utf8")
