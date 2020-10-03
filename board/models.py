@@ -37,17 +37,56 @@ def insert(title, content, max_group_no, user_no):
     cursor.close()
     conn.close()
 
-def fetchlist():
+def fetchlist(limit, page=1):
+    conn = getconnection()
+    cursor = conn.cursor(DictCursor)
+
+    if page is None:
+        page = 1
+
+    sql = '''
+        SELECT
+            A.no,
+            A.title,
+            A.hit,
+            date_format(A.reg_date, "%%Y-%%m-%%d %%H:%%i:%%s") as reg_date,
+            A.user_no,
+            u.name as user_name,
+            A.page,
+            A.topcnt
+        FROM (
+            SELECT
+                board.*,
+                row_number() over () as row_no,
+                ceil(row_number() over () / %s) as page,
+                COUNT(*) OVER() AS topcnt
+            FROM board
+        ) A
+        INNER JOIN user u ON u.no = A.user_no
+        WHERE A.page = %s
+        ORDER BY A.no DESC
+    '''
+    cursor.execute(sql, [limit, page])
+    results = cursor.fetchall()
+
+    cursor.close()
+    conn.close()
+
+    return results
+
+def fetchlist2():
     conn = getconnection()
     cursor = conn.cursor(DictCursor)
 
     sql = '''
+        SET @rownum:=0;
           select b.no,
                  b.title,
                  b.hit,
                  date_format(b.reg_date, '%Y-%m-%d %H:%i:%s') as reg_date,
                  b.user_no,
-                 u.name as user_name
+                 u.name as user_name,
+                 @rownum:=@rownum+1 as row_no
             from board b
             inner join user u on u.no = b.user_no
             order by no desc

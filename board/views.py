@@ -1,3 +1,4 @@
+import math
 from django.http import HttpResponseRedirect
 from django.shortcuts import render
 
@@ -5,7 +6,18 @@ import board.models as boardmodel
 # Create your views here.
 
 def index(request):
+    page_no = request.GET.get('page')
     board_no = request.GET.get('no')
+    limit = 10
+
+    if page_no is None:
+        page_no = 1
+    else:
+        page_no = int(page_no)
+
+    if page_no < 1:
+        page_no = 1
+
     if board_no is not None:
         results = boardmodel.fetchonebyno(board_no)
         data = { 'boarditem': results }
@@ -14,10 +26,29 @@ def index(request):
 
     user = request.session.get('userauth')
     if user is None:
-        return render(request, 'board/loginrequest.html')
+        return HttpResponseRedirect('/user/loginform')
 
-    results = boardmodel.fetchlist()
-    data = {'boardlist': results, 'user_no': user['no'] }
+
+    results = boardmodel.fetchlist(limit, page_no)
+
+    if len(results) == 0:
+        return HttpResponseRedirect('/board')
+
+    topcnt = results[0]['topcnt']
+    max_page = math.ceil(topcnt/limit)
+
+    page_range = range(1, 6)
+    if page_no > 2:
+        page_range = range(page_no - 2, page_no + 3)
+
+    data = {
+        'boardlist': results,
+        'user_no': user['no'],
+        'max_page': max_page,
+        'page_range': page_range,
+        'page': page_no
+    }
+    print(data)
     return render(request, 'board/index.html', data)
 
 def write(request):
@@ -78,14 +109,3 @@ def modify(request):
     boardmodel.update(board_no, title, content)
 
     return HttpResponseRedirect('/board?no={}'.format(board_no))
-
-
-# no = request.POST['no']
-    # password = request.POST['password']
-    #
-    # result = boardmodel.delete(no, password)
-    #
-    # if result == 1:
-    #     return HttpResponseRedirect('/board')
-    # else:
-    #     return HttpResponseRedirect('/board/deleteform?no={}&message="sthwrong"'.format(no))
